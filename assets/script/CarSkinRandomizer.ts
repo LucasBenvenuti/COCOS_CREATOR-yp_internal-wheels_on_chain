@@ -27,9 +27,9 @@ export class CarSkinRandomizer extends Component {
         var self = this;
 
         let skinIndex = Math.floor(Math.random() * ((self.carSprites.length) - 0) + 0);
-        console.log("Props Index - " + skinIndex);
+        // console.log("Props Index - " + skinIndex);
 
-        console.log(self.spriteComponent);
+        // console.log(self.spriteComponent);
 
         self.spriteComponent.spriteFrame = self.carSprites[skinIndex];
 

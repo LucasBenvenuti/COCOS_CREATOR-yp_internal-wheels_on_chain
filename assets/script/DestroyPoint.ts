@@ -1,7 +1,5 @@
 
 import { _decorator, Component, Node, BoxCollider2D, Contact2DType, IPhysics2DContact } from 'cc';
-import { IndividualPropBehavior } from './IndividualPropBehavior';
-import { PlayerBehavior } from './PlayerBehavior';
 import { PropsBehavior } from './PropsBehavior';
 const { ccclass, property } = _decorator;
  
@@ -18,18 +16,14 @@ export class DestroyPoint extends Component {
         if(collider)
         {
             collider.on(Contact2DType.BEGIN_CONTACT, self.onBeginContact, self);
-            // console.log(collider);
         }
     }
 
     onBeginContact (selfCollider: BoxCollider2D, otherCollider: BoxCollider2D) {
         var self = this;
 
-        // console.log(otherCollider);
-
         if(otherCollider.group == 2)
         {
-            // console.log("GROUND");
             self.propsBehavior.SpawnObject();
         }
     }

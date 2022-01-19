@@ -6,8 +6,6 @@ const { ccclass, property } = _decorator;
 @ccclass('PropsBehavior')
 export class PropsBehavior extends Component {
 
-    public static instance : PropsBehavior =  null;
-
     @property(Prefab)
     groundPrefab = null!;
     @property(Node)
@@ -37,21 +35,14 @@ export class PropsBehavior extends Component {
     @property(PlayerBehavior)
     playerBehavior = null!;
 
-    @property([String])
-    instanceType = [];
-
-    instanceTypeIndex = 0;
-
     instantiated = false;
+    loopCanGo = false;
 
     lastPropIndex = -1;
+    propIndexGone: Array<Number> = [];
 
     onLoad(){
-        if(PropsBehavior.instance != null && PropsBehavior.instance != this){
-            this.destroy();
-        }else{
-            PropsBehavior.instance = this;
-        }
+        var self = this;
     }
 
     start () {
@@ -79,17 +70,13 @@ export class PropsBehavior extends Component {
         var self = this;
 
         let carIndex = Math.floor(Math.random() * ((self.carEnemyPrefabs.length) - 0) + 0);
-        // let carIndex = 0;
-        console.log("Car Index - " + carIndex);
 
-        let wayIndex = Math.floor(Math.random() * ((PlayerBehavior.instance.wayNodes.length) - 0) + 0);
-        
-        console.log("Way Index - " + wayIndex);
+        let wayIndex = Math.floor(Math.random() * ((self.playerBehavior.wayNodes.length) - 0) + 0);
 
         let carObject = instantiate(self.carEnemyPrefabs[carIndex]);
         self.scheduleOnce(()=>{
             carObject.parent = self.carEnemyParent;
-            carObject.setPosition(PlayerBehavior.instance.wayNodes[wayIndex].position.x, self.spawnPoint.position.y, carObject.position.z);
+            carObject.setPosition(self.playerBehavior.wayNodes[wayIndex].position.x, self.spawnPoint.position.y, carObject.position.z);
         }, 0);
     }
 
@@ -98,13 +85,34 @@ export class PropsBehavior extends Component {
 
         let propsIndex = self.lastPropIndex;
 
-        while(propsIndex == self.lastPropIndex)
+        if(self.propIndexGone.length == self.propsPrefabs.length)
+        {
+            console.log("Reseting List");
+            
+            self.propIndexGone = [];
+            console.log(self.propIndexGone);
+        }
+
+        self.loopCanGo = false;
+
+        while(!self.loopCanGo)
         {
             propsIndex = Math.floor(Math.random() * ((self.propsPrefabs.length) - 0) + 0);
             console.log("Props Index - " + propsIndex);
-        }
 
+            if(propsIndex != self.lastPropIndex)
+            {
+                if(self.propIndexGone.indexOf(propsIndex) == -1)
+                {
+                    console.log("Not repeated!");
+                    self.loopCanGo = true;
+                }
+            }
+        }
+        
         self.lastPropIndex = propsIndex;
+        self.propIndexGone.push(self.lastPropIndex);
+        console.log(self.propIndexGone);
 
         let propObject = instantiate(self.propsPrefabs[propsIndex]);
         self.scheduleOnce(()=>{
@@ -113,12 +121,5 @@ export class PropsBehavior extends Component {
 
             self.instantiated = false;
         }, 0);
-    }
-
-    MoveStreet()
-    {
-        var self = this;
-
-        console.log("MOVE STREET");
     }
 }
