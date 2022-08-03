@@ -1,11 +1,14 @@
 
-import { _decorator, Component, Node, BoxCollider2D, Contact2DType } from 'cc';
+import { _decorator, Component, Node, BoxCollider2D, Contact2DType, find } from 'cc';
 import { PlayerBehavior } from './PlayerBehavior';
 import { PropsBehavior } from './PropsBehavior';
 const { ccclass, property } = _decorator;
  
 @ccclass('IndividualPropBehavior')
 export class IndividualPropBehavior extends Component {
+
+    playerBehavior: PlayerBehavior = null!;
+    propsBehavior: PropsBehavior = null!;
 
     @property(Boolean)
     isPropStarter = false;
@@ -30,6 +33,9 @@ export class IndividualPropBehavior extends Component {
 
     start () {
         var self = this;
+
+        self.playerBehavior = find("Canvas/All/Player")?.getComponent(PlayerBehavior);
+        self.propsBehavior = find("Canvas/All/Props")?.getComponent(PropsBehavior);
         
         if(self.isMovable)
             self.movableSpeed = (Math.random() * (self.minimumSpeed - self.maximumSpeed) + self.maximumSpeed);
@@ -45,15 +51,14 @@ export class IndividualPropBehavior extends Component {
     update (deltaTime: number) {
         var self = this;
         
-        if(PlayerBehavior.instance){
-            self.node.setPosition(self.node.position.x, (self.node.position.y - ((PlayerBehavior.instance.speed * self.movableSpeed) * deltaTime)));
+        if(self.playerBehavior){
+            self.node.setPosition(self.node.position.x, (self.node.position.y - ((self.playerBehavior.speed * self.movableSpeed) * deltaTime)));
         }
     }
 
     onBeginContact (selfCollider: BoxCollider2D, otherCollider: BoxCollider2D) {
         var self = this;
-
-        // console.log(otherCollider.group);
+        
         if(!self.isMovable)
         {
             if(otherCollider.group != 64 && otherCollider.group != 4)
@@ -62,21 +67,14 @@ export class IndividualPropBehavior extends Component {
             }
         }
 
-        if(self.isPropStarter && !PropsBehavior.instance.instantiated)
+        if(self.isPropStarter && !self.propsBehavior.instantiated)
         {
-            PropsBehavior.instance.instantiated = true;
-            
-            PropsBehavior.instance.SpawnProps();
+            self.propsBehavior.instantiated = true;
+            self.propsBehavior.SpawnProps();
         }
 
-        // if(otherCollider.group == 4)
-        // {
-            // console.log("GROUND");
-        // }else
-        // {   
-            self.scheduleOnce(()=>{
-                self.node.destroy();
-            }, 0.01);
-        // }
+        self.scheduleOnce(()=>{
+            self.node.destroy();
+        }, 0.01);
     }
 }

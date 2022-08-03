@@ -16,20 +16,15 @@ export class RepositionPoint extends Component {
         if(collider)
         {
             collider.on(Contact2DType.BEGIN_CONTACT, self.onBeginContact, self);
-            // console.log(collider);
         }
     }
 
     onBeginContact (selfCollider: BoxCollider2D, otherCollider: BoxCollider2D) {
         var self = this;
 
-        // console.log(otherCollider);
-
         if(otherCollider.group == 2)
         {
-            console.log("GROUND");
-            // otherCollider.node.setPosition(0, self.propsBehavior.spawnPoint.position.y, 0);
-            // self.propsBehavior.MoveStreet();
+            // console.log("GROUND");
             self.propsBehavior.SpawnObject();
         }
     }
